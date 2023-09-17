@@ -10,18 +10,23 @@ type Room interface {
 	Broadcast(sender Client, msg string)
 	AddMember(client Client)
 	BootMember(member Client)
+
+	Game() Game
+	ResetGame() error
 }
 
 func NewRoom(name string) Room {
 	return &room{
 		name:    name,
 		members: make(map[net.Addr]Client),
+		game: NewGame(),
 	}
 }
 
 type room struct {
 	name    string
 	members map[net.Addr]Client
+	game Game
 }
 
 func (r *room) Name() string {
@@ -45,4 +50,22 @@ func (r *room) BootMember(member Client) {
 		delete(r.members, member.Addr())
 		r.Broadcast(member, fmt.Sprintf("%s has left the room", member.Name()))
 	}
+}
+
+func (r *room) Game() Game {
+	return r.game
+}
+
+func (r *room) ResetGame() error {
+	g := NewGame()
+	for _, m := range r.members {
+		// i don't know how i feel about every player being added to the game
+		p, err := g.AddPlayer(m.Addr())
+		if err != nil {
+			return err
+		}
+		m.SetPlayer(p)
+	}
+	r.game = g
+	return nil
 }

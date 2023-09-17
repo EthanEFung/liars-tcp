@@ -7,6 +7,13 @@ const (
 	CMD_JOIN
 	CMD_ROOMS
 	CMD_QUIT
+
+	CMD_PLAY
+	CMD_START_GAME
+	CMD_DICE
+	CMD_WAGER
+	CMD_LIAR
+	CMD_RESET_GAME
 )
 
 type Command interface {
