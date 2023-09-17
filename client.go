@@ -39,10 +39,10 @@ func NewClient(conn net.Conn, cmds chan Command) Client {
 }
 
 type client struct {
-	conn net.Conn
-	name string
-	cmds chan<- Command
-	room Room
+	conn   net.Conn
+	name   string
+	cmds   chan<- Command
+	room   Room
 	player Player
 }
 

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net"
 )
+
 type GameStateType int
 
 const (
@@ -32,30 +33,31 @@ type Game interface {
 func NewGame() Game {
 	g := &game{
 		players: []Player{},
-		dice: make(map[int]int),
+		dice:    make(map[int]int),
 	}
 	g.state = &gameStatePending{g}
 	return g
 }
 
 type game struct {
-	state GameState
-	wager Wager
-	idx int
-	player Player
+	state   GameState
+	wager   Wager
+	idx     int
+	player  Player
 	players []Player
-	dice map[int]int
+	dice    map[int]int
 }
+
 func (g *game) SetState(state GameState) {
 	g.state = state
 }
-func(g *game) Type() GameStateType {
+func (g *game) Type() GameStateType {
 	return g.state.Type()
 }
-func(g *game) Player() Player {
+func (g *game) Player() Player {
 	return g.players[g.idx]
 }
-func(g *game) Players() []Player {
+func (g *game) Players() []Player {
 	return g.players
 }
 func (g *game) AddPlayer(addr net.Addr) (Player, error) {
@@ -113,7 +115,7 @@ func (g *game) removePlayer(p Player) error {
 			}
 		}
 	}
-	if len(g.players) != prev - 1 {
+	if len(g.players) != prev-1 {
 		return errors.New("unsuccessfully removed player")
 	}
 	return nil
@@ -135,7 +137,7 @@ func (g *game) startNewRound() error {
 type GameState interface {
 	Type() GameStateType
 	Player() Player
-	Players() []Player 
+	Players() []Player
 	AddPlayer(net.Addr) (Player, error)
 	Wager() (Wager, error)
 	SetWager(Player, Wager) error
@@ -144,14 +146,14 @@ type GameState interface {
 	Start() error
 }
 
-
 type gameStatePending struct {
 	Game
 }
-func(gsp *gameStatePending) Type() GameStateType {
+
+func (gsp *gameStatePending) Type() GameStateType {
 	return GAME_STATE_PENDING
 }
-func(gsp *gameStatePending) Players() []Player {
+func (gsp *gameStatePending) Players() []Player {
 	return gsp.Game.Players()
 }
 func (gsp *gameStatePending) AddPlayer(addr net.Addr) (Player, error) {
@@ -175,7 +177,7 @@ func (gsp *gameStatePending) Start() error {
 	return g.start()
 }
 func (gsp *gameStatePending) Wager() (Wager, error) {
-	return nil, ErrGameNotStarted 
+	return nil, ErrGameNotStarted
 }
 func (gsp *gameStatePending) SetWager(Player, Wager) error {
 	return ErrGameNotStarted
@@ -190,10 +192,11 @@ func (gsp *gameStatePending) Winner() (Player, error) {
 type gameStatePlaying struct {
 	Game
 }
-func(gsp *gameStatePlaying) Type() GameStateType {
+
+func (gsp *gameStatePlaying) Type() GameStateType {
 	return GAME_STATE_PLAYING
 }
-func(gsp *gameStatePlaying) Players() []Player {
+func (gsp *gameStatePlaying) Players() []Player {
 	return gsp.Game.Players()
 }
 func (gsp *gameStatePlaying) AddPlayer(addr net.Addr) (Player, error) {
@@ -207,7 +210,7 @@ func (gsp *gameStatePlaying) Wager() (Wager, error) {
 }
 func (gsp *gameStatePlaying) SetWager(p Player, w Wager) error {
 	g := gsp.Game
-	if (g.Player() != p) {
+	if g.Player() != p {
 		return errors.New("only current player can set wager")
 	}
 	curr, err := g.Wager()
@@ -218,8 +221,9 @@ func (gsp *gameStatePlaying) SetWager(p Player, w Wager) error {
 		return errors.New("wager must be greater than current")
 	}
 	g.setWager(p, w)
-	return nil 
+	return nil
 }
+
 /*
 Call returns the player that lost the wager
 */
@@ -235,7 +239,7 @@ func (gsp *gameStatePlaying) Call(p Player) (Player, error) {
 	if g.Player() != p {
 		return nil, errors.New("only current player can call")
 	}
-	var loser Player 
+	var loser Player
 	dice := g.allDice()
 	total := dice[w.Face()]
 	players := g.Players()
@@ -244,9 +248,9 @@ func (gsp *gameStatePlaying) Call(p Player) (Player, error) {
 		for i, player := range players {
 			if p == player {
 				if i == 0 {
-					loser = players[len(players) - 1]
+					loser = players[len(players)-1]
 				} else {
-					loser = players[i-1] 
+					loser = players[i-1]
 				}
 				break
 			}
@@ -264,7 +268,7 @@ func (gsp *gameStatePlaying) Call(p Player) (Player, error) {
 
 	// the total is greater or equal to the wager so the player who calls loses
 	winner, err := g.Winner()
-	if err != nil && !errors.Is(err, ErrGameInProgress){
+	if err != nil && !errors.Is(err, ErrGameInProgress) {
 		return nil, err
 	}
 	if winner != nil {
@@ -284,28 +288,28 @@ func (gsp *gameStatePlaying) Winner() (Player, error) {
 type gameStatePlayed struct {
 	Game
 }
-func(gsp *gameStatePlayed) Type() GameStateType {
+
+func (gsp *gameStatePlayed) Type() GameStateType {
 	return GAME_STATE_PLAYED
 }
-func(gsp *gameStatePlayed) Players() []Player  {
+func (gsp *gameStatePlayed) Players() []Player {
 	return gsp.Game.Players()
 }
-func(gsp *gameStatePlayed) AddPlayer(net.Addr) (Player, error) {
+func (gsp *gameStatePlayed) AddPlayer(net.Addr) (Player, error) {
 	return nil, ErrGamePlayed
 }
-func(gsp *gameStatePlayed) Wager() (Wager, error) {
+func (gsp *gameStatePlayed) Wager() (Wager, error) {
 	return nil, ErrGamePlayed
 }
-func(gsp *gameStatePlayed) SetWager(Player, Wager) error {
+func (gsp *gameStatePlayed) SetWager(Player, Wager) error {
 	return ErrGamePlayed
 }
-func(gsp *gameStatePlayed) Call(Player) (Player, error) {
+func (gsp *gameStatePlayed) Call(Player) (Player, error) {
 	return nil, ErrGamePlayed
 }
-func(gsp *gameStatePlayed) Winner() (Player, error) {
+func (gsp *gameStatePlayed) Winner() (Player, error) {
 	return gsp.Game.winner()
 }
-func(gsp *gameStatePlayed) Start() error {
+func (gsp *gameStatePlayed) Start() error {
 	return ErrGamePlayed
 }
-

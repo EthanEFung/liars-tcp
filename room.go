@@ -19,14 +19,14 @@ func NewRoom(name string) Room {
 	return &room{
 		name:    name,
 		members: make(map[net.Addr]Client),
-		game: NewGame(),
+		game:    NewGame(),
 	}
 }
 
 type room struct {
 	name    string
 	members map[net.Addr]Client
-	game Game
+	game    Game
 }
 
 func (r *room) Name() string {

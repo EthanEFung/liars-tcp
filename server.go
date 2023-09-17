@@ -136,9 +136,9 @@ func (s *server) playGame(cmd Command) {
 	if err != nil {
 		c.Error(err)
 		return
-	} 
+	}
 	c.SetPlayer(p)
-	r.Broadcast(c, c.Name() + " joined the game")
+	r.Broadcast(c, c.Name()+" joined the game")
 	c.Println("great! you have joined the game")
 }
 
@@ -149,7 +149,7 @@ func (s *server) startGame(cmd Command) {
 	if r == nil {
 		c.Error(ErrNotInRoom)
 		return
-	} 
+	}
 	if err := g.Start(); err != nil {
 		c.Error(err)
 		return
@@ -203,11 +203,11 @@ func (s *server) wager(cmd Command) {
 		return
 	}
 	w, err := NewWager(face, count)
-	if err != nil  {
+	if err != nil {
 		c.Error(err)
 		return
 	}
-	if err := g.SetWager(p, w); err != nil  {
+	if err := g.SetWager(p, w); err != nil {
 		c.Error(err)
 		return
 	}
@@ -244,7 +244,7 @@ func (s *server) liar(cmd Command) {
 	}
 	if p == loser {
 		c.Println("you lost!")
-		r.Broadcast(c ,fmt.Sprintf("%s lost the round!", c.Name()))
+		r.Broadcast(c, fmt.Sprintf("%s lost the round!", c.Name()))
 	} else {
 		c.Println("you won the round!")
 		r.Broadcast(c, fmt.Sprintf("%s won the round!", c.Name()))

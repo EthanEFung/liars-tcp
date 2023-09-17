@@ -9,7 +9,7 @@ type Wager interface {
 }
 
 func NewWager(face, count int) (Wager, error) {
-	if (face < 0 || face > 6) {
+	if face < 0 || face > 6 {
 		return nil, errors.New("invalid wager (only 6 faces on a die)")
 	}
 	return &wager{
@@ -19,11 +19,11 @@ func NewWager(face, count int) (Wager, error) {
 }
 
 type wager struct {
-	face int
+	face  int
 	count int
 }
 
-func(w *wager) LTE(other Wager) bool {
+func (w *wager) LTE(other Wager) bool {
 	f, c := w.face, w.count
 	if c < other.Count() {
 		return true
@@ -36,7 +36,7 @@ func(w *wager) LTE(other Wager) bool {
 
 func (w *wager) Face() int {
 	return w.face
-} 
+}
 
 func (w *wager) Count() int {
 	return w.count

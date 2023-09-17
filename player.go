@@ -8,7 +8,7 @@ import (
 
 type Player interface {
 	Addr() net.Addr
-	Dice() map[int]int 
+	Dice() map[int]int
 	Roll()
 }
 
